@@ -160,9 +160,15 @@ async def menu_navigation(callback: types.CallbackQuery, callback_data: MenuCall
                 else:
                     item = await get_item(session, callback_data.item_id)
                 
+                # Определяем контекст навигации (для кнопки "Назад" и "Заказать")
                 if is_random:
-                    callback_data.group_id = item.category.group_id
-                    callback_data.category_id = item.category_id
+                    # Если рандом, то "Назад" должно вести в реальную категорию блюда
+                    nav_group_id = item.category.group_id
+                    nav_category_id = item.category_id
+                else:
+                    # Если обычный просмотр, используем текущий путь
+                    nav_group_id = callback_data.group_id
+                    nav_category_id = callback_data.category_id
                 
                 text = (
                     f"{'🎲 Случайный выбор!' if is_random else ''}\n"
@@ -176,7 +182,15 @@ async def menu_navigation(callback: types.CallbackQuery, callback_data: MenuCall
                 try:
                     await callback.message.edit_text(
                         text, 
-                        reply_markup=get_item_actions_kb(callback_data.rest_id, callback_data.group_id, callback_data.category_id, item.id, is_random=is_random)
+                        reply_markup=get_item_actions_kb(
+                            callback_data.rest_id, 
+                            callback_data.group_id, 
+                            callback_data.category_id, 
+                            item.id, 
+                            is_random=is_random,
+                            nav_group_id=nav_group_id,
+                            nav_category_id=nav_category_id
+                        )
                     )
                 except TelegramBadRequest:
                     await callback.answer("🎲 То же самое!")

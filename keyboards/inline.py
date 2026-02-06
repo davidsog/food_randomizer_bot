@@ -68,16 +68,19 @@ def get_items_kb(items, rest_id, group_id, category_id):
     get_nav_buttons(builder, 3, rest_id, group_id=group_id, category_id=category_id)
     return builder.as_markup()
 
-def get_item_actions_kb(rest_id, group_id, category_id, item_id, is_random=False):
+def get_item_actions_kb(rest_id, group_id, category_id, item_id, is_random=False, nav_group_id=None, nav_category_id=None):
+    if nav_group_id is None: nav_group_id = group_id
+    if nav_category_id is None: nav_category_id = category_id
+
     builder = InlineKeyboardBuilder()
-    builder.add(InlineKeyboardButton(text="✅ Я взял это (1 шт)", callback_data=MenuCall(level=5, rest_id=rest_id, group_id=group_id, category_id=category_id, item_id=item_id, action="order").pack()))
+    builder.add(InlineKeyboardButton(text="✅ Я взял это (1 шт)", callback_data=MenuCall(level=5, rest_id=rest_id, group_id=nav_group_id, category_id=nav_category_id, item_id=item_id, action="order").pack()))
     
     if is_random:
         builder.add(InlineKeyboardButton(text="🔄 Предложи другое", callback_data=MenuCall(level=4, rest_id=rest_id, group_id=group_id, category_id=category_id, action="random").pack()))
     
     builder.adjust(1)
     # Возврат в список блюд (уровень 3)
-    get_nav_buttons(builder, 4, rest_id, group_id, category_id)
+    get_nav_buttons(builder, 4, rest_id, nav_group_id, nav_category_id)
     return builder.as_markup()
 
 # --- СТАТИСТИКА ---
